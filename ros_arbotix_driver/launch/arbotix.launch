@@ -1,0 +1,5 @@
+<launch>
+   <node name="arbotix" pkg="ros_arbotix_driver" type="arbotix_node.py" output="screen">
+      <rosparam file="$(find ros_arbotix_driver)/config/my_arbotix_params.yaml" command="load" />
+   </node>
+</launch>
