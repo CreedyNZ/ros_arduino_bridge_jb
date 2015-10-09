@@ -151,7 +151,7 @@ class ArbotixM:
              #self.port.write(chr(cmds[k]))  <<<<<<<<<<<<<<<Debug
              checksum += int(cmds[k])
           checksum = (255 - (checksum%256))
-          print(cmds['i_RightV'],":_:",cmds['i_RightH'])
+          print(cmds)
           #self.port.write(chr(checksum))  <<<<<<<<<<<<<<<Debug
           cmds['i_leftV'] = 0
           cmds['i_leftH'] = 0
