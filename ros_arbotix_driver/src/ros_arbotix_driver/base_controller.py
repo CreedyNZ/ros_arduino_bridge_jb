@@ -26,8 +26,6 @@ import os
 
 from math import sin, cos, pi
 from geometry_msgs.msg import Quaternion, Twist, Pose
-from nav_msgs.msg import Odometry
-from tf.broadcaster import TransformBroadcaster
  
 """ Class to receive Twist commands and publish Odometry data """
 class BaseController:
@@ -76,6 +74,7 @@ class BaseController:
             # Set motor speeds in encoder ticks per PID loop
             if not self.stopped:
                 self.arbotix.travel(self.v_x, self.v_y, self.rotate)
+                print(self.v_x, self.v_y, self.rotate)
                 
             self.t_next = now + self.t_delta
             
@@ -90,7 +89,7 @@ class BaseController:
         x = req.linear.x         # m/s
         y = req.linear.y         # m/s
         th = req.angular.z       # rad/s
-
+        
             
         self.v_x = int(x * self.vel_calibrate)
         self.v_y = int(y * self.vel_calibrate)

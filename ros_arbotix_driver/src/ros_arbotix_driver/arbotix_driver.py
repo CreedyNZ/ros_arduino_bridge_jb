@@ -133,7 +133,7 @@ class ArbotixM:
     def execute_commander(self, cmds):
         ''' Thread safe execution of "cmd" on the Arduino returning a single integer value.
         '''
-        self.mutex.acquire()
+        #self.mutex.acquire()
 
         try:
             self.port.flushInput()
@@ -151,18 +151,19 @@ class ArbotixM:
              self.port.write(chr(cmds[k]))  #<<<<<<<<<<<<<<<Debug
              checksum += int(cmds[k])
           checksum = (255 - (checksum%256))
-          print(cmds)
+          #print(cmds)
           self.port.write(chr(checksum))  #<<<<<<<<<<<<<<<Debug
           cmds['i_leftV'] = 0
           cmds['i_leftH'] = 0
           cmds['i_RightV'] = 0
           cmds['i_RightH']= 0
-        except:
-            self.mutex.release()
-            print "Exception executing command: " + cmds
+        except Exception as e: 
+            #self.mutex.release()
+            print "Exception executing command: "
+            print e
             value = None
 
-        self.mutex.release()
+        #self.mutex.release()
         return int()
 
     def execute_array(self, cmd):
