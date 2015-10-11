@@ -20,10 +20,10 @@
 """
 
 import rospy
-from ros_arduino_python.arduino_driver import Arduino
+from ros_arbotix_driver.arbotix_driver import ArbotixM
 from ros_arduino_python.arduino_sensors import *
 from ros_arduino_msgs.srv import *
-from ros_arduino_python.base_controller import BaseController
+from ros_arbotix_driver.base_controller import BaseController
 from geometry_msgs.msg import Twist
 import os, time
 import thread
@@ -81,7 +81,7 @@ class ArduinoROS():
 	rospy.Service('~analog_write', AnalogWrite, self.AnalogWriteHandler)
 
 	# Initialize the controlller
-        self.controller = Arduino(self.port, self.baud, self.timeout)
+        self.controller = ArbotixM(self.port, self.baud, self.timeout)
         
         # Make the connection
         self.controller.connect()
