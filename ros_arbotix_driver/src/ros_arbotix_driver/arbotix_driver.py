@@ -27,6 +27,7 @@ import os
 import time
 import sys, traceback
 import config
+from binascii import b2a_hex
 from serial.serialutil import SerialException
 from serial import Serial
 
@@ -41,7 +42,7 @@ atrib = config.atrib
 
 class ArbotixM:
     
-    def __init__(self, port, baudrate, timeout):
+    def __init__(self,port="/dev/ttyArb",baudrate=38400,timeout=0.5):
 
         self.port = port
         self.baudrate = baudrate
@@ -67,6 +68,9 @@ class ArbotixM:
             self.port = Serial(port=self.port, baudrate=self.baudrate, timeout=self.timeout, writeTimeout=self.writeTimeout)
             # The next line is necessary to give the firmware time to wake up.
             time.sleep(1)
+            if(self.port.isOpen() == False):
+                 raise SerialException
+            print "Connected at", self.baudrate
             print "Arbotix is ready."
 
         except SerialException:
@@ -133,7 +137,7 @@ class ArbotixM:
     def execute_commander(self, cmds):
         ''' Thread safe execution of "cmd" on the Arduino returning a single integer value.
         '''
-        #self.mutex.acquire()
+        self.mutex.acquire()
 
         try:
             self.port.flushInput()
@@ -163,7 +167,7 @@ class ArbotixM:
             print e
             value = None
 
-        #self.mutex.release()
+        self.mutex.release()
         return int()
 
     def execute_array(self, cmd):
@@ -258,5 +262,14 @@ class ArbotixM:
         atrib['ext']= 0
         self.execute_commander(atrib)
 
+    def state(self,balance,doubleT,stand):
+        atrib['i_Buttons'] = 0
+        if(balance):
+         atrib['i_Buttons'] += 1
+        if(doubleT):
+         atrib['i_Buttons'] += 2
+        if(stand):
+         atrib['i_Buttons'] += 4
+        print (atrib['i_Buttons'])
 
     

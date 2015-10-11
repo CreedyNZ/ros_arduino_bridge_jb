@@ -54,14 +54,15 @@ class BaseController:
         self.v_y = 0
         self.rotate = 0
         self.v_right = 0
-        self.vel_calibrate = 30         #calibration factors for arbotix commands
-        self.rot_calibrate = 30
+        self.vel_calibrate = 127         #calibration factors for arbotix commands
+        self.rot_calibrate = 50
         self.last_cmd_vel = now
 
         # subscriptions
         rospy.Subscriber("cmd_vel", Twist, self.cmdVelCallback)
         
         rospy.loginfo("Started base controller for a Hexapod base")
+        self.arbotix.state(0, 0, 1)
     
     def poll(self):
         now = rospy.Time.now()
@@ -77,6 +78,13 @@ class BaseController:
                 print(self.v_x, self.v_y, self.rotate)
                 
             self.t_next = now + self.t_delta
+    
+    def jbstart(self):    
+        x = 0
+        while x < 10:
+           self.arbotix.state(0,0,1)
+           time.sleep(0.1)
+           x +=1        
             
     def stop(self):
         self.stopped = True

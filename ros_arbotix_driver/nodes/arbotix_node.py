@@ -24,6 +24,7 @@ from ros_arbotix_driver.arbotix_driver import ArbotixM
 from ros_arduino_msgs.srv import *
 from ros_arbotix_driver.base_controller import BaseController
 from geometry_msgs.msg import Twist
+from ros_arbotix_driver.startup import startup
 import os, time
 import thread
 
@@ -60,7 +61,7 @@ class ArduinoROS():
         self.controller = ArbotixM(self.port, self.baud, self.timeout)
         
         # Make the connection
-        #self.controller.connect() <<<<<<<<<<<Debug
+        self.controller.connect()
         
         rospy.loginfo("Connected to Arduino on port " + self.port + " at " + str(self.baud) + " baud")
      
@@ -70,6 +71,9 @@ class ArduinoROS():
         # Initialize the base controller if used
         if self.use_base_controller:
             self.myBaseController = BaseController(self.controller, self.base_frame)
+            
+        # Call startup script
+        startup()    
     
         # Start polling the sensors and base controller
         while not rospy.is_shutdown():
