@@ -1,3 +1,4 @@
 # Current Gait
 Header header
-uint16 value
+uint8 value
+

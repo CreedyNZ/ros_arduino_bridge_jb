@@ -100,7 +100,7 @@ class BaseController:
         
             
         self.v_x = int(x * self.vel_calibrate)
-        self.v_y = int(y * self.vel_calibrate)
+        self.v_y = -int(y * self.vel_calibrate)
         self.rotate = int(th * self.rot_calibrate)
 
         

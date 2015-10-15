@@ -149,20 +149,20 @@ class ArbotixM:
           for k in self.addtypes:
              cmds[k] = cmds[k] + 128
           checksum = 0
-          self.port.write(chr(255))   #<<<<<<<<<<<<<<<Debug
+          self.port.write(chr(255))
           cmds['i_ComMode'] = cmds['i_Mode'] + cmds['i_Gait']
           for k in self.commandtypes:
-             self.port.write(chr(cmds[k]))  #<<<<<<<<<<<<<<<Debug
+             self.port.write(chr(cmds[k]))
              checksum += int(cmds[k])
           checksum = (255 - (checksum%256))
           #print(cmds)
-          self.port.write(chr(checksum))  #<<<<<<<<<<<<<<<Debug
+          self.port.write(chr(checksum))
           cmds['i_leftV'] = 0
           cmds['i_leftH'] = 0
           cmds['i_RightV'] = 0
           cmds['i_RightH']= 0
         except Exception as e: 
-            #self.mutex.release()
+            self.mutex.release()
             print "Exception executing command: "
             print e
             value = None
