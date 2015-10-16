@@ -162,7 +162,7 @@ class ArbotixM:
           cmds['i_RightV'] = 0
           cmds['i_RightH']= 0
         except Exception as e: 
-            self.mutex.release()
+            #self.mutex.release()
             print "Exception executing command: "
             print e
             value = None
@@ -272,18 +272,17 @@ class ArbotixM:
          atrib['i_Buttons'] += 4
         print (atrib['i_Buttons'])
 
-    def setgait(gait):
+    def setgait(self,gait):
        if (gait != atrib['i_Gait']):
        	r = 5
        	while r > 0:
-           stand()
-           stdpkt.sendpkt()
+           self.stop()
            time.sleep(0.1)
            r -= 1 
        	r = 5
        	while r > 0:
            atrib['i_Gait'] = gait
-           stdpkt.sendpkt()
+           self.execute_commander(atrib)
            time.sleep(0.1)
            r -= 1
     

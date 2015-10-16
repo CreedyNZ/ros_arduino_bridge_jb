@@ -24,7 +24,7 @@ from ros_arbotix_driver.arbotix_driver import ArbotixM
 from ros_arduino_msgs.srv import *
 from ros_arbotix_driver.base_controller import BaseController
 from geometry_msgs.msg import Twist
-#from ros_arbotix_driver.startup import startup
+from ros_arbotix_driver.startup import startup
 import os, time
 import thread
 
@@ -73,7 +73,7 @@ class ArduinoROS():
             self.myBaseController = BaseController(self.controller, self.base_frame)
             
         # Call startup script
-        jbstart()    
+        startup()    
     
         # Start polling the sensors and base controller
         while not rospy.is_shutdown():

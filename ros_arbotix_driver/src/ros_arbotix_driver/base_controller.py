@@ -58,10 +58,10 @@ class BaseController:
         self.vel_calibrate = 127         #calibration factors for arbotix commands
         self.rot_calibrate = 50
         self.last_cmd_vel = now
-	self.gait = 1         # Phoenix code variables
+        self.gait = 1         # Phoenix code variables
         self.balance = 0
-	self.doubleT = 0
-	self.stand = 0	
+        self.doubleT = 0
+        self.stand = 0	
 
         # subscriptions
         rospy.Subscriber("cmd_vel", Twist, self.cmdVelCallback)
@@ -82,7 +82,8 @@ class BaseController:
             if not self.stopped:
                 self.arbotix.travel(self.v_x, self.v_y, self.rotate)
                 self.arbotix.state(self.balance, self.doubleT, self.stand)
-                print(self.v_x, self.v_y, self.rotate, self.balance, self.doubleT, self.stand)
+                self.arbotix.setgait(self.gait)
+                print(self.v_x, self.v_y, self.rotate, self.balance, self.doubleT, self.stand, self.gait)
             self.t_next = now + self.t_delta
     
     def jbstart(self):    
@@ -107,15 +108,15 @@ class BaseController:
             
         self.v_x = int(x * self.vel_calibrate)
         self.v_y = -int(y * self.vel_calibrate)
-        self.rotate = int(th * self.rot_calibrate)
+        self.rotate = -int(th * self.rot_calibrate)
     
     def cmdPhstateCallback(self, req):
         # Handle Phoenix code state commands
         
-        self.gait = req.linear.gait         # Phoenix commands
+        self.gait = req.gait         # Phoenix commands
         self.balance = req.balance
-	self.doubleT = req.doubleT
-	self.stand = req.stand	
+        self.doubleT = req.doubleT
+        self.stand = req.stand	
         
         
 
