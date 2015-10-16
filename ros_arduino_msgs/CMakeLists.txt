@@ -7,7 +7,7 @@ add_message_files(FILES
                   AnalogFloat.msg
                   Analog.msg
                   Digital.msg
-                  Gait.msg
+                  PhoenixState.msg
                   SensorState.msg
                  )
 

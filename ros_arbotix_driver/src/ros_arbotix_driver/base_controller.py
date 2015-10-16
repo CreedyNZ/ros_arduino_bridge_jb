@@ -26,6 +26,7 @@ import os
 
 from math import sin, cos, pi
 from geometry_msgs.msg import Quaternion, Twist, Pose
+from ros_arduino_msgs.msg import PhoenixState
  
 """ Class to receive Twist commands and publish Odometry data """
 class BaseController:
@@ -57,12 +58,17 @@ class BaseController:
         self.vel_calibrate = 127         #calibration factors for arbotix commands
         self.rot_calibrate = 50
         self.last_cmd_vel = now
+	self.gait = 1         # Phoenix code variables
+        self.balance = 0
+	self.doubleT = 0
+	self.stand = 0	
 
         # subscriptions
         rospy.Subscriber("cmd_vel", Twist, self.cmdVelCallback)
-        
+        rospy.Subscriber("cmd_phstate", PhoenixState, self.cmdPhstateCallback)
+
         rospy.loginfo("Started base controller for a Hexapod base")
-        self.arbotix.state(0, 0, 1)
+        
     
     def poll(self):
         now = rospy.Time.now()
@@ -75,14 +81,14 @@ class BaseController:
             # Set motor speeds in encoder ticks per PID loop
             if not self.stopped:
                 self.arbotix.travel(self.v_x, self.v_y, self.rotate)
-                print(self.v_x, self.v_y, self.rotate)
-                
+                self.arbotix.state(self.balance, self.doubleT, self.stand)
+                print(self.v_x, self.v_y, self.rotate, self.balance, self.doubleT, self.stand)
             self.t_next = now + self.t_delta
     
     def jbstart(self):    
         x = 0
         while x < 10:
-           self.arbotix.state(0,0,1)
+           self.arbotix.state(0,0,0)
            time.sleep(0.1)
            x +=1        
             
@@ -102,7 +108,15 @@ class BaseController:
         self.v_x = int(x * self.vel_calibrate)
         self.v_y = -int(y * self.vel_calibrate)
         self.rotate = int(th * self.rot_calibrate)
-
+    
+    def cmdPhstateCallback(self, req):
+        # Handle Phoenix code state commands
+        
+        self.gait = req.linear.gait         # Phoenix commands
+        self.balance = req.balance
+	self.doubleT = req.doubleT
+	self.stand = req.stand	
+        
         
 
     

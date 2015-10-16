@@ -272,4 +272,18 @@ class ArbotixM:
          atrib['i_Buttons'] += 4
         print (atrib['i_Buttons'])
 
+    def setgait(gait):
+       if (gait != atrib['i_Gait']):
+       	r = 5
+       	while r > 0:
+           stand()
+           stdpkt.sendpkt()
+           time.sleep(0.1)
+           r -= 1 
+       	r = 5
+       	while r > 0:
+           atrib['i_Gait'] = gait
+           stdpkt.sendpkt()
+           time.sleep(0.1)
+           r -= 1
     
