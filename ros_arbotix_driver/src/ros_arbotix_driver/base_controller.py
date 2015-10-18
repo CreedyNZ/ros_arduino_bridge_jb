@@ -25,8 +25,15 @@ import rospy
 import os
 
 from math import sin, cos, pi
-from geometry_msgs.msg import Quaternion, Twist, Pose
+from geometry_msgs.msg import Transform, Twist, Pose
 from ros_arduino_msgs.msg import PhoenixState
+
+#Values for Phoenix Code Mcde setting
+RESET  = 0
+WALK = 10
+ROTATE = 20
+TRANSLATE = 30
+SINLEG = 40
  
 """ Class to receive Twist commands and publish Odometry data """
 class BaseController:
@@ -53,18 +60,27 @@ class BaseController:
         self.v_left = 0
         self.v_x = 0                    # cmd_vel setpoint
         self.v_y = 0
+        self.t_x = 0                    # cmd_trans setpoint
+        self.t_y = 0
+        self.t_z = 0
+        self.r_x = 0                    # cmd_trans rotate setpoint
+        self.r_y = 0
+        self.r_z = 0
+        self.r_w = 0
         self.rotate = 0
         self.v_right = 0
         self.vel_calibrate = 127         #calibration factors for arbotix commands
         self.rot_calibrate = 50
+        self.trans_calibrate = 50
         self.last_cmd_vel = now
-        self.gait = 1         # Phoenix code variables
+        self.gait = 2         # Phoenix code variables
         self.balance = 0
         self.doubleT = 0
         self.stand = 0	
 
         # subscriptions
         rospy.Subscriber("cmd_vel", Twist, self.cmdVelCallback)
+        rospy.Subscriber("cmd_trans", Transform, self.cmdTransCallback)
         rospy.Subscriber("cmd_phstate", PhoenixState, self.cmdPhstateCallback)
 
         rospy.loginfo("Started base controller for a Hexapod base")
@@ -80,10 +96,15 @@ class BaseController:
             
             # Set motor speeds in encoder ticks per PID loop
             if not self.stopped:
-                self.arbotix.travel(self.v_x, self.v_y, self.rotate)
-                self.arbotix.state(self.balance, self.doubleT, self.stand)
-                self.arbotix.setgait(self.gait)
-                print(self.v_x, self.v_y, self.rotate, self.balance, self.doubleT, self.stand, self.gait)
+               if ((abs(self.t_x) + abs(self.t_y) + abs(self.t_z)) > 0):
+                   self.arbotix.translate(self.t_x, self.t_y, self.t_z)
+               elif ((abs(self.r_x) + abs(self.r_y) + abs(self.r_z)+ abs(self.r_w)) > 0):
+                   self.arbotix.rotate(self.r_x, self.r_y, self.r_z, self.r_w)
+               else
+                   self.arbotix.travel(self.v_x, self.v_y, self.rotate)    
+                   self.arbotix.state(self.balance, self.doubleT, self.stand)
+                   self.arbotix.setgait(self.gait)           
+                   print(self.v_x, self.v_y, self.rotate, self.balance, self.doubleT, self.stand, self.gait)
             self.t_next = now + self.t_delta
     
     def jbstart(self):    
@@ -97,6 +118,8 @@ class BaseController:
         self.stopped = True
         self.arbotix.stop()
             
+         
+            
     def cmdVelCallback(self, req):
         # Handle velocity-based movement requests
         self.last_cmd_vel = rospy.Time.now()
@@ -109,6 +132,26 @@ class BaseController:
         self.v_x = int(x * self.vel_calibrate)
         self.v_y = -int(y * self.vel_calibrate)
         self.rotate = -int(th * self.rot_calibrate)
+        
+    def cmdTransCallback(self, req):
+        # Handle transform & rotation based movement requests
+        self.last_cmd_vel = rospy.Time.now()
+        
+        tx = req.translation.x         
+        ty = req.translation.y         
+        tz = req.translation.z       # rad/s
+        rx = req.rotation.x         
+        ry = req.rotation.y         
+        rz = req.rotation.z       
+        rw = req.rotation.w       # rad/s
+            
+        self.t_x = int(tx * self.trans_calibrate)
+        self.t_y = -int(ty * self.trans_calibrate)
+        self.t_z = int(tz * self.trans_calibrate)
+        self.r_x = int(rx * self.rot_calibrate)
+        self.r_y = int(ry * self.rot_calibrate)
+        self.r_z = int(rz * self.rot_calibrate)
+        self.r_w = int(rw * self.rot_calibrate)   
     
     def cmdPhstateCallback(self, req):
         # Handle Phoenix code state commands
@@ -117,7 +160,6 @@ class BaseController:
         self.balance = req.balance
         self.doubleT = req.doubleT
         self.stand = req.stand	
-        
         
 
     

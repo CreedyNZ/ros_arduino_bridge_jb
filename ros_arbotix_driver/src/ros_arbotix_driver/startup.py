@@ -58,7 +58,6 @@ def servostart():
 def startup():
     Thread(target=play, args=("/home/hexy/git/JimBob2/Python/Sounds/r2d2.ogg",1)).start()
     Thread(target=servostart).start()
-    servostart()
     reset()
 
 def reset():

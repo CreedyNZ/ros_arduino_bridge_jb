@@ -152,8 +152,8 @@ class ArbotixM:
           self.port.write(chr(255))
           cmds['i_ComMode'] = cmds['i_Mode'] + cmds['i_Gait']
           for k in self.commandtypes:
-             self.port.write(chr(cmds[k]))
-             checksum += int(cmds[k])
+              self.port.write(chr(cmds[k]))
+              checksum += int(cmds[k])
           checksum = (255 - (checksum%256))
           #print(cmds)
           self.port.write(chr(checksum))
@@ -162,7 +162,7 @@ class ArbotixM:
           cmds['i_RightV'] = 0
           cmds['i_RightH']= 0
         except Exception as e: 
-            #self.mutex.release()
+            self.mutex.release()
             print "Exception executing command: "
             print e
             value = None
@@ -250,10 +250,26 @@ class ArbotixM:
         atrib['i_RightH']= y
         atrib['ext']= 0
         self.execute_commander(atrib)
+    
+    def rotate(self,x,y,z,w): #calculate rotate related commands
+        atrib['i_Mode'] = ROTATE
+        atrib['i_leftV'] = z
+        atrib['i_leftH'] = x
+        atrib['i_RightV'] = y
+        atrib['i_RightH']= w
+        atrib['ext']= 0
+        self.execute_commander(atrib)
+     
+    def translate(self,x,y,z): #calculate translate related commands
+        atrib['i_Mode'] = TRANSLATE 
+        atrib['i_leftV'] = z
+        atrib['i_leftH'] = x
+        atrib['i_RightV'] = 0
+        atrib['i_RightH']= y
+        atrib['ext']= 0
+        self.execute_commander(atrib)   
         
     def stop(self):
-        ''' Stop both motors.
-        '''
         atrib['i_Mode'] = WALK
         atrib['i_leftV'] = 0
         atrib['i_leftH'] = 0
@@ -270,7 +286,6 @@ class ArbotixM:
          atrib['i_Buttons'] += 2
         if(stand):
          atrib['i_Buttons'] += 4
-        print (atrib['i_Buttons'])
 
     def setgait(self,gait):
        if (gait != atrib['i_Gait']):
@@ -278,6 +293,8 @@ class ArbotixM:
        	while r > 0:
            self.stop()
            time.sleep(0.1)
+           self.cmd_vel_pub.Publish(Twist())
+           rospy.sleep(0.1)
            r -= 1 
        	r = 5
        	while r > 0:
